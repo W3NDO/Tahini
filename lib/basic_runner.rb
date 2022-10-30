@@ -3,7 +3,13 @@ require 'fail'
 class Runner
   attr_accessor :test_space
   # the test space is a hash. it will hold the scope of the test and the returned result pass/fail object
-  def initialize; end
+  def initialize
+    self.test_space = {}
+  end
+
+  def add_to_test_space(name, result)
+    test_space.has_key?(name) ? test_space[name] << result : test_space[name] = [result]
+  end
 
   def expects
     yield
