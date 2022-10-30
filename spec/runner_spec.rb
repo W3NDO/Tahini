@@ -6,7 +6,7 @@ RSpec.describe Runner do
   describe "Initializing a new Runner" do
     let(:runner){Runner.new}
     it "creates a new Runner object" do
-      expect(runner.class).to eq Runner
+      expect(runner).to be_instance_of Runner
     end
   end
 
