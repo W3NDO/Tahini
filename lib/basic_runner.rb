@@ -2,6 +2,7 @@ require 'fail'
 
 class Runner
   attr_accessor :test_space
+  # the test space is a hash. it will hold the scope of the test and the returned result pass/fail object
   def initialize; end
 
   def expects
@@ -21,7 +22,7 @@ class Runner
     end
   end
 
-  def to_eq(*args, value)
+  def to_eq(value)
     # value is the value against which we compare the passed block
     value_class = value.class
     block = yield
@@ -36,6 +37,10 @@ class Runner
     end
     
     return Pass.new(block, value)
+  end
+
+  def to_eq_collection(value)
+    
   end
 
   def it(string)
