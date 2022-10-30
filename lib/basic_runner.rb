@@ -39,8 +39,20 @@ class Runner
     return Pass.new(block, value)
   end
 
-  def to_eq_collection(value)
+  def collections_to_eq(value)
+    # this method is to be used when comparing collection class objects like arrays, hashes, sets and ranges
+    # As of now it only supports Arrays and Hashes
+    supported_collections = [Array, Hash]
+    block = yield
+    unless supported_collections.include?(value.class)
+      return Fail.new(block, value, message: "#collections_to_eq only compares Array or Hash objects. '#{value}' is not a valid collection at this time")
+    end
+
+    unless supported_collections.include?(block.class)
+      return Fail.new(block, value, message: "#collections_to_eq only compares Array or Hash objects. The evaluated result, '#{block}', is not a valid collection at this time.")
+    end
     
+    return Pass.new(block, value)
   end
 
   def it(string)
