@@ -1,4 +1,5 @@
 require 'fail'
+require 'pass'
 
 class Runner
   attr_accessor :test_space
@@ -15,7 +16,7 @@ class Runner
     yield
   end
 
-  def to_be(*args, bool_value)
+  def to_be(bool_value)
     if [TrueClass, FalseClass].include?(bool_value.class)
       block = yield
       pass_fail = block == bool_value
@@ -41,7 +42,7 @@ class Runner
         return Fail.new(block, value, message:" Class mismatch between the expected value #{value} and actual value #{block}")
       end
     end
-    
+
     return Pass.new(block, value)
   end
 
@@ -57,7 +58,7 @@ class Runner
     unless supported_collections.include?(block.class)
       return Fail.new(block, value, message: "#collections_to_eq only compares Array or Hash objects. The evaluated result, '#{block}', is not a valid collection at this time.")
     end
-    
+
     return Pass.new(block, value)
   end
 

@@ -1,4 +1,6 @@
-class Pass
+require 'result'
+
+class Pass < Result
   attr_accessor :lhs, :rhs
 
   def initialize(lhs, rhs)
@@ -8,4 +10,5 @@ class Pass
     self.lhs = lhs
     self.rhs = rhs
   end
+
 end
