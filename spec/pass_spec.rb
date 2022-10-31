@@ -12,6 +12,10 @@ RSpec.describe Pass do
       expect(pass.rhs).to eq true
     end
 
+    it "ensures that a pass object inherits from the Result class" do
+      expect(pass.class.ancestors[1].name).to eq "Result"
+    end
+
     it "raises a validity error if lhs and rhs values do not match" do
       expect{ invalid_pass = Pass.new(true, "true")  }.to raise_error ArgumentError
     end
