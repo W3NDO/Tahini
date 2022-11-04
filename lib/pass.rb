@@ -1,4 +1,4 @@
-require 'result'
+require_relative 'result'
 
 class Pass < Result
   attr_accessor :lhs, :rhs

@@ -58,4 +58,19 @@ RSpec.describe Runner do
       expect(runner.collections_to_eq([1,2,3]){"string"}).to have_result_with_lhs_rhs(Fail.new("string", [1,2,3], message: "#collections_to_eq only compares Array or Hash objects. The evaluated result, 'string', is not a valid collection at this time." ))
     end
   end
+
+  describe "Runner's test space" do
+    let(:runner){ Runner.new }
+
+    it "Adds a new test result in the test space" do
+      runner.it("returns true"){ runner.to_eq(true){ true } }
+      expect(runner.test_space.keys).to include "returns true"
+      expect(runner.test_space["returns true"].first).to be_instance_of Pass
+
+      runner.it("fails to return true"){ runner.to_eq(true){ false } }
+      expect(runner.test_space.keys).to include "fails to return true"
+      expect(runner.test_space.length).to eq 2
+      expect(runner.test_space["fails to return true"].first).to be_instance_of Fail
+    end
+  end
 end

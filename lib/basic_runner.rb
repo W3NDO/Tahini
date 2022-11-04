@@ -1,5 +1,6 @@
-require 'fail'
-require 'pass'
+require_relative 'fail'
+require_relative 'pass'
+# require 'colorize'
 
 class Runner
   attr_accessor :test_space
@@ -8,7 +9,7 @@ class Runner
     self.test_space = {}
   end
 
-  def add_to_test_space(name, result)
+  def add_to_test_space(name, result) # collate all tests into the test space hash
     test_space.has_key?(name) ? test_space[name] << result : test_space[name] = [result]
   end
 
@@ -23,6 +24,7 @@ class Runner
       unless pass_fail
         return Fail.new(block, bool_value)
       end
+      return_test_results
       return Pass.new(block, bool_value)
     else
       raise ArgumentError, "Expected a boolean, got #{bool_value.class}"
@@ -42,7 +44,7 @@ class Runner
         return Fail.new(block, value, message:" Class mismatch between the expected value #{value} and actual value #{block}")
       end
     end
-
+    return_test_results
     return Pass.new(block, value)
   end
 
@@ -63,6 +65,30 @@ class Runner
   end
 
   def it(string)
-    yield
+    add_to_test_space(string, yield)
+  end
+
+  def return_test_results
+    fail_count = 0
+    pass_count = 0
+    current_test = []
+    failures = {}
+    begin
+      test_space.each do |test, result|
+        current_test = [test, result]
+        if result.class == Fail
+          fail_count += 1
+          failures[fail_count] = "#{fail_count}. \n FAIL : #{result.message} \n \t lhs : #{result.lhs} \n \t rhs : #{result.rhs} "
+          pp "F".red
+        elsif result.class == Pass
+          pass_count += 1
+          pp "."
+        end
+      end
+    rescue
+      puts "There was an issue running #{current_test[0]}"
+    end
+    pp "#{fail_count} tests failed"
+    pp "#{pass_count} tests passed"
   end
 end

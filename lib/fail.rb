@@ -1,4 +1,4 @@
-require 'result'
+require_relative 'result'
 
 class Fail < Result
   attr_accessor :lhs, :rhs, :message
