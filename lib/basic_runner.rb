@@ -1,5 +1,5 @@
-require_relative 'fail'
-require_relative 'pass'
+require_relative 'result'
+
 # require 'colorize'
 
 class Runner
@@ -10,7 +10,11 @@ class Runner
   end
 
   def add_to_test_space(name, result) # collate all tests into the test space hash
-    test_space.has_key?(name) ? test_space[name] << result : test_space[name] = [result]
+    # test_space.has_key?(name) ? test_space[name] << result : test_space[name] = [result]
+    test_space[name.to_sym] << result if test_space.respond_to?(name.to_sym)
+    test_space[name] = [result] unless test_space.respond_to?(name.to_sym)
+
+    # can optimise this with metaprogramming? Use respond_to? instead
   end
 
   def expects
@@ -22,10 +26,10 @@ class Runner
       block = yield
       pass_fail = block == bool_value
       unless pass_fail
-        return Fail.new(block, bool_value)
+        return Result::Fail.new(block, bool_value)
       end
       return_test_results
-      return Pass.new(block, bool_value)
+      return Result::Pass.new(block, bool_value)
     else
       raise ArgumentError, "Expected a boolean, got #{bool_value.class}"
     end
@@ -35,17 +39,17 @@ class Runner
     # value is the value against which we compare the passed block
     value_class = value.class
     block = yield
-    similar_class = block.class == value_class
+    similar_class = (block.class == value_class)
 
     unless similar_class
       if block.class == String or value_class == String
-        return Fail.new(block, value, message: "Class mismatch between the expected value: '#{value}', and the actual value '#{block}'")
+        return Result::Fail.new(block, value, message: "Class mismatch between the expected value: '#{value}', and the actual value '#{block}'")
       else
-        return Fail.new(block, value, message:" Class mismatch between the expected value #{value} and actual value #{block}")
+        return Result::Fail.new(block, value, message:" Class mismatch between the expected value #{value} and actual value #{block}")
       end
     end
     return_test_results
-    return Pass.new(block, value)
+    return Result::Pass.new(block, value)
   end
 
   def collections_to_eq(value)
@@ -54,14 +58,14 @@ class Runner
     supported_collections = [Array, Hash]
     block = yield
     unless supported_collections.include?(value.class)
-      return Fail.new(block, value, message: "#collections_to_eq only compares Array or Hash objects. '#{value}' is not a valid collection at this time")
+      return Result::Fail.new(block, value, message: "#collections_to_eq only compares Array or Hash objects. '#{value}' is not a valid collection at this time")
     end
 
     unless supported_collections.include?(block.class)
-      return Fail.new(block, value, message: "#collections_to_eq only compares Array or Hash objects. The evaluated result, '#{block}', is not a valid collection at this time.")
+      return Result::Fail.new(block, value, message: "#collections_to_eq only compares Array or Hash objects. The evaluated result, '#{block}', is not a valid collection at this time.")
     end
 
-    return Pass.new(block, value)
+    return Result::Pass.new(block, value)
   end
 
   def it(string)
@@ -74,13 +78,13 @@ class Runner
     current_test = []
     failures = {}
     begin
-      test_space.each do |test, result|
+      self.test_space.each do |test, result|
         current_test = [test, result]
-        if result.class == Fail
+        if result.class == Result::Fail
           fail_count += 1
           failures[fail_count] = "#{fail_count}. \n FAIL : #{result.message} \n \t lhs : #{result.lhs} \n \t rhs : #{result.rhs} "
           pp "F".red
-        elsif result.class == Pass
+        elsif result.class == Result::Pass
           pass_count += 1
           pp "."
         end
@@ -88,6 +92,7 @@ class Runner
     rescue
       puts "There was an issue running #{current_test[0]}"
     end
+    pp "#{Result::Pass.new(1,1).class} - Test Space"
     pp "#{fail_count} tests failed"
     pp "#{pass_count} tests passed"
   end

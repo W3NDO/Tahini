@@ -31,8 +31,8 @@ RSpec::Matchers.define :have_result_with_lhs_rhs do |result|
     return false unless match.lhs == result.lhs
     return false unless match.rhs == result.rhs
 
-    if result.class == Fail and match.message
-      return false unless match.message == result.message
+    if result.class == Result::Fail and match.message and match.message != result.message
+      return false
     end
     true
   end

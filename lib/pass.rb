@@ -1,6 +1,6 @@
-require_relative 'result'
+include Result
 
-class Pass < Result
+class Pass < Result:Result
   attr_accessor :lhs, :rhs
 
   def initialize(lhs, rhs)
