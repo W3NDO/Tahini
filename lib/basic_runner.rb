@@ -86,14 +86,13 @@ class Runner
           pp "F".red
         elsif result.class == Result::Pass
           pass_count += 1
-          pp "."
+          pp "p"
         end
       end
     rescue
       puts "There was an issue running #{current_test[0]}"
     end
-    pp "#{Result::Pass.new(1,1).class} - Test Space"
-    pp "#{fail_count} tests failed"
-    pp "#{pass_count} tests passed"
+    # pp "#{fail_count} tests failed"
+    # pp "#{pass_count} tests passed"
   end
 end
